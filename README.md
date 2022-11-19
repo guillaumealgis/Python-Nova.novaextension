@@ -1,37 +1,39 @@
-# Python for Nova
+# Serpens for Nova
+
 <p align="center">
-    <img src="https://raw.githubusercontent.com/mmshivesh/PyLS-Nova.novaextension/master/extension.png" height="128" width="128">
+  <img alt="Serpens Logo"
+    src="https://raw.githubusercontent.com/guillaumealgis/Serpens.novaextension/assets/serpens.png"
+    srcset="
+      https://raw.githubusercontent.com/guillaumealgis/Serpens.novaextension/assets/serpens.png 1x,
+      https://raw.githubusercontent.com/guillaumealgis/Serpens.novaextension/assets/serpens@2x.png 2x
+    " />
 </p>
 
-![](https://img.shields.io/badge/dynamic/json?color=brightgreen&label=Latest%20Version&query=%24.version&url=https%3A%2F%2Fraw.githubusercontent.com%2Fmmshivesh%2FPython-Nova.novaextension%2Fmaster%2Fextension.json)
-
-Full featured Python Language Server plugin (implements [PyLS](https://github.com/python-lsp/python-lsp-server)) for Nova, supports Jedi Autocomplete, PyFlakes, PyLint, YAPF, Rope, McCabe, PyDoc and CodeStyles.
-
-Also supports the Python Language Server plugin `mypy`.
-
-## Working Features
-
-- [x] Auto-completion (including snippet fills-- Turn on `Include Function and Class Parameters`, Fixed in Nova 2.0)
-- [x] Follow imports (Fixed in Nova 2.0)
-- [x] Full Function hover tooltips with syntax highlighting
-- [x] Module and function docstrings
-- [x] PyDocStyle and PyCodeStyle flags
-- [x] McCabe Cyclomatic Complexity
-- [x] Automatic Preferences Reload on changes (Some preferences still need a full extension reload).
+Full featured Python Language Server plugin (implements [PyLS](https://github.com/python-lsp/python-lsp-server)) for Nova, supports Jedi Autocomplete, PyFlakes, PyLint, and more.
 
 ## Installation
 
 1. Install the LSP server and its dependencies using:
 
+(Preferably in a [virtual environment](https://docs.python.org/3/tutorial/venv.html) if you want to keep things clean on your machine)
+
 ```bash
-pip3 install 'python-lsp-server[all]'
+pip install 'python-lsp-server[all]'
 ```
 
-2. Enable required modules from settings.
+2. (Optional) Install Python Language Server plugins and enable them from settings:
 
-3. (Optional) Install Python Language Server plugins and enable them from settings:
+```bash
+pip install pyls-pluginname
+```
 
-- `mypy` plugin: `pip3 install pyls-mypy`
+For example:
+
+```bash
+pip install pyls-flake8
+```
+
+3. Enable the plugins you want to use in the Preferences of the Serpens extension.
 
 ## Features
 
@@ -51,6 +53,15 @@ pip3 install 'python-lsp-server[all]'
 
 ![](https://raw.githubusercontent.com/mmshivesh/Python-Nova.novaextension/master/.github/images/autoComplete.gif)
 
-## Contributing
+## License
 
-I would be extremely grateful if you could lend a hand in the development of this extension. PRs with new features and fixes would be greatly appreciated. Also, feel free to open bug reports.
+Serpens is released under the MIT license. See LICENSE.md for details.
+
+## Why "Serpens"?
+
+It's the name of the [Constellation of the Serpent](https://en.wikipedia.org/wiki/Serpens).
+It's a play on words with Python (a serpent) and Nova (an astronomical object).
+
+## Contact
+
+Guillaume Algis ([@guillaumealgis@fosstodon.org](https://fosstodon.org/@guillaumealgis))

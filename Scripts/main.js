@@ -17,8 +17,8 @@ exports.deactivate = function() {
 // Show a notification with the given title and body when in dev mode.
 function showNotification(title, body) {
     if (nova.inDevMode()) {
-        let request = new NotificationRequest("python-nova-message");
-        
+        let request = new NotificationRequest();
+
         request.title = nova.localize(title);
         request.body = nova.localize(body);
         nova.notifications.add(request);
@@ -215,8 +215,8 @@ function getSettings() {
                         "filename": parseSpaceSeparated(getPreference('pyls.plugins.pycodestyle.filename')),
                         "select": parseSpaceSeparated(getPreference('pyls.plugins.pycodestyle.select')),
                         "ignore": conditionalAppendArgumentsToArray(
-                            getPreference('pyls.plugins.pycodestyle.disableLineLength'), 
-                            parseSpaceSeparated(getPreference('pyls.plugins.pycodestyle.ignore')), 
+                            getPreference('pyls.plugins.pycodestyle.disableLineLength'),
+                            parseSpaceSeparated(getPreference('pyls.plugins.pycodestyle.ignore')),
                             "E501"),
                         "hangClosing": getPreference('pyls.plugins.pycodestyle.hangClosing'),
                         "maxLineLength": getPreference('pyls.plugins.pycodestyle.maxLineLength')
@@ -235,7 +235,7 @@ function getSettings() {
                         "enabled": getPreference('pyls.plugins.pylint.enabled'),
                         "args": parseSpaceSeparated(getPreference('pyls.plugins.pylint.args')),
                         "executable": getPreference('pyls.plugins.pylint.executable')
-                        
+
                     },
                     "rope_completion": {
                         "enabled": getPreference('pyls.plugins.rope_completion.enabled')
@@ -249,14 +249,14 @@ function getSettings() {
                     "yapf": {
                         "enabled": getPreference('pyls.plugins.yapf.enabled')
                     },
-                    
+
                     // Additional Plugin Preferences
                     "pyls_mypy": {
                         "enabled": getPreference('pyls.plugins.pyls_mypy.enabled'),
                         "live_mode": getPreference('pyls.plugins.pyls_mypy.live_mode')
                     }
                 }
-                
+
             }
           }
     }
@@ -316,7 +316,7 @@ class PythonLanguageServer {
             'pyls.plugins.pylint.args',
             'pyls.plugins.pylint.executable',
             'pyls.rope.ropeFolder',
-            'pyls.rope.extensionModules', 
+            'pyls.rope.extensionModules',
             'pyls.plugins.pyls_mypy.enabled',
             'pyls.plugins.pyls_mypy.live_mode'
         ];
@@ -328,7 +328,7 @@ class PythonLanguageServer {
                 }
             }, this);
         }
-        
+
         let reloadKeys = [
             'pyls.executable',
             'pyls.enableLogging',
@@ -364,31 +364,31 @@ class PythonLanguageServer {
         }
         // showNotification(`Monitoring ${keys.length + reloadKeys.length + workspaceKeys.length} Preferences.`);
     }
-    
+
     deactivate() {
         this.stop();
     }
-    
+
     async start(path) {
         this.stop();
-        
+
         // Create the client
         var serverOptions = {
             path: path
         };
-        
+
         // Enable logging.
         if (getPreference("pyls.enableLogging", false)) {
             serverOptions["args"] = ['-vv', '--log-file', getPreference('pyls.logPath', '/tmp/pyls.log')]
         }
-        
+
         var clientOptions = {
             // The set of document syntaxes for which the server is valid
             syntaxes: ['python'],
         };
-        
+
         var client = new LanguageClient('PyLS', 'Python Language Server', serverOptions, clientOptions);
-        
+
         try {
             // Start the client
             client.start();
@@ -404,7 +404,7 @@ class PythonLanguageServer {
             }
         }
     }
-    
+
     stop() {
         if (this.languageClient) {
             this.languageClient.stop();

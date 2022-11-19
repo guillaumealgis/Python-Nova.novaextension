@@ -1,16 +1,16 @@
 {
-    "identifier": "works.creativecode.python-nova",
-    "name": "Python",
-    "organization": "CreativeCodeWorks",
-    "description": "Full featured Python Plugin for Nova— Supports Jedi Autocomplete, PyFlakes, PyLint, YAPF, Rope, McCabe and lots more. Under development.",
-    "version": "1.1.0",
+    "identifier": "com.guillaumealgis.serpens",
+    "name": "Serpens",
+    "organization": "Guillaume Algis",
+    "description": "Full featured Python plugin for Nova. Supports Jedi autocomplete, PyFlakes, PyLint, and lots more.",
+    "version": "2.0.0",
     "license": "MIT",
     "categories": [
         "languages"
     ],
     "main": "main.js",
-    "bugs": "https://github.com/mmshivesh/Python-Nova.novaextension/issues",
-    "repository": "https://github.com/mmshivesh/Python-Nova.novaextension",
+    "bugs": "https://github.com/guillaumealgis/Serpens.novaextension/issues",
+    "repository": "https://github.com/guillaumealgis/Serpens.novaextension",
     "entitlements": {
         "process": true,
         "filesystem": "readonly"
@@ -24,11 +24,11 @@
         }
     ],
     "config": [
-        {   
+        {
             "title": "Basic Options",
             "description": "Basic PyLS configutation options",
             "type": "section",
-            "key": "works.creativecode.pyls.optionsSec",
+            "key": "com.guillaumealgis.pyls.optionsSec",
             "children": [
                 {
                     "key":"pyls.executable",
@@ -64,10 +64,10 @@
             "title": "Enable Modules",
             "description": "Quickly Enable or disable PyLS modules",
             "type": "section",
-            "key": "works.creativecode.pyls.modulesSec",
+            "key": "com.guillaumealgis.pyls.modulesSec",
             "children": [
                 {
-                    
+
                     "key": "pyls.plugins.jedi.enabled",
                     "type": "boolean",
                     "title": "Enable Jedi",
@@ -178,12 +178,12 @@
             "title": "Module Options",
             "description": "Options for PyLS modules.",
             "type": "section",
-            "key": "works.creativecode.pylint.codeStyleCat",
+            "key": "com.guillaumealgis.pylint.codeStyleCat",
             "children": [
                 {
                     "title": "Jedi",
                     "type": "section",
-                    "key": "works.creativecode.pyls.jediOptionsSec",
+                    "key": "com.guillaumealgis.pyls.jediOptionsSec",
                     "children": [
                         {
                             "key": "pyls.plugins.jedi.extra_paths",
@@ -213,7 +213,7 @@
                 {
                     "title": "Jedi Completion",
                     "type": "section",
-                    "key": "works.creativecode.pyls.jediCompletionSec",
+                    "key": "com.guillaumealgis.pyls.jediCompletionSec",
                     "children": [
                         {
                             "key": "pyls.plugins.jedi_completion.include_params",
@@ -241,7 +241,7 @@
                 {
                     "title": "Jedi Definition",
                     "type": "section",
-                    "key": "works.creativecode.pyls.jediDefinitionSec",
+                    "key": "com.guillaumealgis.pyls.jediDefinitionSec",
                     "children": [
                         {
                             "key": "pyls.plugins.jedi_definition.follow_imports",
@@ -262,7 +262,7 @@
                 {
                     "title": "Jedi Symbols",
                     "type": "section",
-                    "key": "works.creativecode.pyls.jediSymbolsSec",
+                    "key": "com.guillaumealgis.pyls.jediSymbolsSec",
                     "children": [
                         {
                             "key": "pyls.plugins.jedi_symbols.all_scopes",
@@ -276,7 +276,7 @@
                 {
                     "title": "McCabe",
                     "type": "section",
-                    "key": "works.creativecode.pyls.McCabeSec",
+                    "key": "com.guillaumealgis.pyls.McCabeSec",
                     "children": [
                         {
                             "key": "pyls.plugins.mccabe.threshold",
@@ -290,7 +290,7 @@
                 {
                     "title": "Preload",
                     "type": "section",
-                    "key": "works.creativecode.pyls.PreloadSec",
+                    "key": "com.guillaumealgis.pyls.PreloadSec",
                     "children": [
                         {
                             "key": "pyls.plugins.preload.modules",
@@ -304,7 +304,7 @@
                 {
                     "title": "PyCodeStyle",
                     "type": "section",
-                    "key": "works.creativecode.pyls.PycodestyleSec",
+                    "key": "com.guillaumealgis.pyls.PycodestyleSec",
                     "children": [
                         {
                             "key": "pyls.plugins.pycodestyle.exclude",
@@ -359,7 +359,7 @@
                 {
                     "title": "PyDocStyle",
                     "type": "section",
-                    "key": "works.creativecode.pyls.PydocstyleSec",
+                    "key": "com.guillaumealgis.pyls.PydocstyleSec",
                     "children": [
                         {
                             "key": "pyls.plugins.pydocstyle.convention",
@@ -419,7 +419,7 @@
                 {
                     "title": "PyLint",
                     "type": "section",
-                    "key": "works.creativecode.pylint.pylintSec",
+                    "key": "com.guillaumealgis.pylint.pylintSec",
                     "children": [
                         {
                             "key": "pyls.plugins.pylint.args",
@@ -440,7 +440,7 @@
                 {
                     "title": "Rope",
                     "type": "section",
-                    "key": "works.creativecode.pylint.ropeCat",
+                    "key": "com.guillaumealgis.pylint.ropeCat",
                     "children": [
                         {
                             "key": "pyls.rope.ropeFolder",
@@ -450,7 +450,7 @@
                             "description": "The name of the folder in which rope stores project configurations and data.  Pass `null` for not using such a folder at all."
                         },
                         {
-                            "key": "pyls.rope.extensionModules", 
+                            "key": "pyls.rope.extensionModules",
                             "type": "string",
                             "title": "Extension Modules",
                             "default": null,
@@ -464,16 +464,16 @@
             "title": "Plugin Options",
             "description": "Options for PyLS plugins.",
             "type": "section",
-            "key": "works.creativecode.pylint.plugin",
+            "key": "com.guillaumealgis.pylint.plugin",
             "children": [
                 {
                     "title": "MyPy",
                     "type": "section",
                     "description": "Enable after installing using → pip3 install pyls-mypy",
-                    "key": "works.creativecode.pyls.mypyPluginSec",
+                    "key": "com.guillaumealgis.pyls.mypyPluginSec",
                     "children": [
                         {
-                            
+
                             "key": "pyls.plugins.pyls_mypy.enabled",
                             "type": "boolean",
                             "title": "Enable MyPy",
@@ -481,7 +481,7 @@
                             "description": "Enable or disable the MyPy PyLS plugin."
                         },
                         {
-                            
+
                             "key": "pyls.plugins.pyls_mypy.live_mode",
                             "type": "boolean",
                             "title": "Enable Live Mode",
