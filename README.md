@@ -59,8 +59,8 @@ Serpens is released under the MIT license. See LICENSE.md for details.
 
 ## Why "Serpens"?
 
-It's the name of the [Constellation of the Serpent](https://en.wikipedia.org/wiki/Serpens).
-It's a play on words with Python (a serpent) and Nova (an astronomical object).
+It's the name of the [Constellation of the Snake](https://en.wikipedia.org/wiki/Serpens).
+It's a play on words with Python (a snake) and Nova (an astronomical object).
 
 ## Contact
 
