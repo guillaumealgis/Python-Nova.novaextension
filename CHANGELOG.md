@@ -2,7 +2,7 @@
 
 ##### Enhancements
 
-- None.
+- Translate the extension sources to TypeScript.
 
 ##### Bug Fixes
 
