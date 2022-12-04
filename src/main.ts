@@ -108,7 +108,9 @@ function alertDeprecatedServerIfNeeded(serverBinPath: string): void {
     promise.then(
         (reply) => {
             if (reply.actionIdx == 1) {
-                nova.openURL('https://github.com/mmshivesh/Python-Nova.novaextension/pull/18');
+                nova.openURL(
+                    'https://github.com/guillaumealgis/Serpens.novaextension#im-getting-an-alert-python-language-server-is-deprecated-what-is-this-about'
+                );
             } else if (reply.actionIdx == 2) {
                 nova.config.set(ignoreConfigName, serverBinPath);
             }

@@ -37,21 +37,40 @@ pip install pyls-flake8
 
 ## Features
 
-- Real time Linting (Pyflakes):
+-   Real time Linting (Pyflakes):
 
 ![](https://raw.githubusercontent.com/mmshivesh/Python-Nova.novaextension/master/.github/images/realtimeLinting.png)
 
-- Hover actions on Functions and Modules:
+-   Hover actions on Functions and Modules:
 
 ![](https://raw.githubusercontent.com/mmshivesh/Python-Nova.novaextension/master/.github/images/hover.png)
 
-- PyCodeStyle and PyDocStyle hints:
+-   PyCodeStyle and PyDocStyle hints:
 
 ![](https://raw.githubusercontent.com/mmshivesh/Python-Nova.novaextension/master/.github/images/doccode.gif)
 
-- Autocomplete using Jedi:
+-   Autocomplete using Jedi:
 
 ![](https://raw.githubusercontent.com/mmshivesh/Python-Nova.novaextension/master/.github/images/autoComplete.gif)
+
+## Troubleshooting
+
+### I'm getting an alert "python-language-server is deprecated", what is this about?
+
+<img alt="A Nova alert, titled 'python-language-server is deprecated'"
+    src="https://raw.githubusercontent.com/guillaumealgis/Serpens.novaextension/assets/python-lsp-server-alert.png" />
+
+If you are seeing this alert, the language server executable path currently set in the Serpens preferences is pointing to a deprecated `python-language-server` binary. We advise you to update (or remake) your Python virtual environment with the `python-lsp-server` package instead, and update the extension preferences accordingly.
+
+See [Installation](https://github.com/guillaumealgis/Serpens.novaextension#installation) up top for more info on how to setup a virtual environment for this extension.
+
+#### Why is `python-language-server` deprecated?
+
+The original Palantir `python-language-server` [project](https://github.com/palantir/python-language-server) [is abandoned](https://github.com/palantir/python-language-server/issues/935), and several LSP plugins have been moving to its [community fork](https://github.com/python-lsp/python-lsp-server) : `python-lsp-server`.
+
+So in December of 2021, [it was decided](https://github.com/mmshivesh/Python-Nova.novaextension/pull/18) that this extension would encourage users to install the `python-lsp-server` package.
+
+If you wish to continue using `python-language-server` and don't want to see this warning each time the extension is started, click the "Ignore" button, and the alert will never be shown again.
 
 ## License
 
