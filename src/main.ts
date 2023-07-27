@@ -204,7 +204,7 @@ function getSettings() {
                         addSelect: parseList(getPreference('pyls.plugins.pydocstyle.addSelect') ?? ''),
                         ignore: parseList(getPreference('pyls.plugins.pydocstyle.ignore') ?? ''),
                         select: parseList(getPreference('pyls.plugins.pydocstyle.select') ?? ''),
-                        match: parseList(getPreference('pyls.plugins.pydocstyle.match') ?? ''),
+                        match: getPreference('pyls.plugins.pydocstyle.match'),
                         matchDir: parseList(getPreference('pyls.plugins.pydocstyle.matchDir') ?? '')
                     },
                     pylint: {
@@ -353,7 +353,10 @@ class PythonLanguageServer {
     start() {
         try {
             this.languageClient.start();
-            this.languageClient.sendNotification('workspace/didChangeConfiguration', getSettings());
+            setTimeout(
+                () => this.languageClient.sendNotification('workspace/didChangeConfiguration', getSettings()),
+                200
+            );
         } catch (err) {
             console.error(err);
         }
