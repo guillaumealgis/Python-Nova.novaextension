@@ -333,6 +333,7 @@ class PythonLanguageServer {
         if (pylsExecutablePath === null) {
             throw new Error('Unable to start Serpens: could not find a suitable PyLS executable');
         }
+        alertDeprecatedServerIfNeeded(pylsExecutablePath);
 
         const serverOptions: ServerOptions = {
             path: pylsExecutablePath

@@ -3,6 +3,7 @@
 ##### Enhancements
 
 - Translate the extension sources to TypeScript.
+- Display an alert when using the deprecated PyLS backend package 'python-language-server'.
 
 ##### Bug Fixes
 
