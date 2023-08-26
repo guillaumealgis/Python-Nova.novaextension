@@ -1,25 +1,29 @@
-/** Appends the argument to the array if the condition is true and returns it. */
-export function conditionalAppendArgumentsToArray<T>(condition: boolean, array: T[], elt: T): T[] {
-    if (condition) {
-        array.push(elt);
+// Simple object check.
+function isObject(item: any) {
+    return item && typeof item === 'object' && !Array.isArray(item);
+}
+
+// Deep merge two objects.
+// https://stackoverflow.com/a/34749873/404321
+export function mergeDeep(target: { [key: string]: any }, ...sources: { [key: string]: any }[]) {
+    if (!sources.length) {
+        return target;
     }
-    return array;
-}
 
-/** Parse JSON from a string and return an JSON object. */
-export function parseJSON(str: string) {
-    return JSON.parse(
-        str
-            .trim()
-            .replace(/[\u2018\u2019]/g, "'")
-            .replace(/[\u201C\u201D]/g, '"')
-    );
-}
+    const source = sources.shift();
 
-/** Parse space or comma separated strings into a list. */
-export function parseList(listStr: string, sep = ' '): string[] {
-    return listStr.split(sep).flatMap((elt: string) => {
-        const val = elt.trim();
-        return val ? val : [];
-    });
+    if (isObject(target) && isObject(source)) {
+        for (const key in source) {
+            if (isObject(source[key])) {
+                if (!target[key]) {
+                    Object.assign(target, { [key]: {} });
+                }
+                mergeDeep(target[key], source[key]);
+            } else {
+                Object.assign(target, { [key]: source[key] });
+            }
+        }
+    }
+
+    return mergeDeep(target, ...sources);
 }

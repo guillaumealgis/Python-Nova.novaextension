@@ -2,8 +2,8 @@
 
 import { alertDeprecatedServerIfNeeded } from './deprecation';
 import { pythonPackagesFromJSON } from './pypackage';
-import { Settings } from './settings';
-import { sidebarRefreshContent, sidebarRefreshAsLoading, sidebarRefreshWithError } from './sidebar';
+import { LanguageServerConfigurationArgs, Settings } from './settings';
+import { sidebarRefreshAsLoading, sidebarRefreshContent, sidebarRefreshWithError } from './sidebar';
 
 export let serpens: Serpens | null;
 
@@ -26,10 +26,13 @@ class Serpens extends Disposable {
 
         nova.subscriptions.add(this);
 
-        this.reloadLanguageClient();
+        this.restartLanguageClient(() => {
+            console.log('Python Language Server started.');
+        });
 
         nova.commands.register('sidebar.reload', this.detectPylsSetup, this);
-        nova.commands.register('reloadLanguageClient', this.reloadLanguageClient, this);
+        nova.commands.register('restartLanguageClient', this.restartLanguageClient, this);
+        nova.commands.register('reloadLanguageServerConfiguration', this.reloadLanguageServerConfiguration, this);
     }
 
     deactivate() {
@@ -43,15 +46,41 @@ class Serpens extends Disposable {
         }
     }
 
-    reloadLanguageClient() {
+    restartLanguageClient(onDidStart?: () => void) {
         this.stopLanguageClient();
 
         this.languageClient = this.initializeLanguageClient();
         if (this.languageClient) {
             this.languageClient.start();
+
+            // .start() is asynchronous, and Nova gives us no way of knowing
+            // when the `initialized` notification has been issued.
+            // So instead, we wait a bit before starting to send notifications.
+            setTimeout(() => {
+                this.reloadLanguageServerConfiguration();
+                onDidStart?.();
+            }, 500);
         }
 
         this.detectPylsSetup();
+    }
+
+    // Note: This may be called 7 times when a setting changes because of a bug
+    // in Nova. This doesn't seems to be problematic as of today (we're just
+    // spamming the LSP Server needlessly).
+    // https://devforum.nova.app/t/nova-config-ondidchange-callback-invokes-7-times/2020/5
+    reloadLanguageServerConfiguration(workspace?: Workspace, configKey?: string, value?: any) {
+        if (this.languageClient == null) {
+            return;
+        }
+
+        let config: LanguageServerConfigurationArgs;
+        if (configKey != null && value != null) {
+            config = Settings.shared.languageServerConfigurationForKey(configKey, value);
+        } else {
+            config = Settings.shared.languageServerConfiguration();
+        }
+        this.languageClient.sendNotification('workspace/didChangeConfiguration', config);
     }
 
     private initializeLanguageClient(): LanguageClient | null {
