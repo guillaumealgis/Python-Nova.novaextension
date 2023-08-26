@@ -1,14 +1,14 @@
-import { PythonSetup, PythonPackage } from './pypackage';
+import { PythonPackage, PythonSetup } from './pypackage';
 import { Settings } from './settings';
 
 const SIDEBAR_SECTION = 'serpens-pyls';
 
-type SidebarNode = PythonPackage | 'plugins' | TreeItem | Error;
+type SidebarNode = 'PythonInstall' | 'PyLSPythonPackage' | PythonPackage | 'Plugins' | TreeItem | Error;
 
 class VersionTreeItem extends TreeItem {
-    constructor(version: string) {
+    constructor(version?: string | null) {
         super('Version');
-        this.descriptiveText = version;
+        this.descriptiveText = version ?? '?';
         this.image = 'tag';
     }
 }
@@ -25,14 +25,18 @@ class EmptySidebarDataProvider implements TreeDataProvider<SidebarNode> {
 
 class ErrorSidebarDataProvider implements TreeDataProvider<SidebarNode> {
     constructor(private error: Error) {}
-    getChildren(_: Error): SidebarNode[] {
-        let nodes: SidebarNode[] = sidebarItemsForPylsPackage();
-        nodes = nodes.concat(this.error);
-        return nodes;
+    getChildren(element: SidebarNode | null): SidebarNode[] {
+        if (element === null) {
+            return [this.error, 'PythonInstall', 'PyLSPythonPackage'];
+        } else if (element === 'PythonInstall') {
+            return childrenTreeItemsForPythonInstall();
+        } else {
+            return childrenTreeItemsForPylsPackage();
+        }
     }
 
-    getTreeItem(error: Error): TreeItem {
-        return treeItemForSidebarNode(error);
+    getTreeItem(element: SidebarNode): TreeItem {
+        return treeItemForSidebarNode(element);
     }
 }
 
@@ -41,17 +45,18 @@ class SidebarDataProvider implements TreeDataProvider<SidebarNode> {
 
     getChildren(element: SidebarNode | null): SidebarNode[] {
         if (element === null) {
-            let nodes: SidebarNode[] = sidebarItemsForPylsPackage(
-                this.pythonSetup.pylsPackage,
-                this.pythonSetup.pythonVersion
-            );
+            return ['PythonInstall', 'PyLSPythonPackage'];
+        } else if (element === 'PythonInstall') {
+            return childrenTreeItemsForPythonInstall(this.pythonSetup);
+        } else if (element === 'PyLSPythonPackage') {
+            let nodes: SidebarNode[] = childrenTreeItemsForPylsPackage(this.pythonSetup);
             if (this.pythonSetup.pylsPackage) {
-                nodes = nodes.concat('plugins');
+                nodes = nodes.concat('Plugins');
             }
             return nodes;
         } else if (element instanceof PythonPackage) {
-            return sidebarItemsForPackage(element);
-        } else if (element === 'plugins') {
+            return childrenTreeItemsForPythonPackage(element);
+        } else if (element === 'Plugins') {
             return this.pythonSetup.pluginsPackages;
         } else {
             return [];
@@ -63,59 +68,22 @@ class SidebarDataProvider implements TreeDataProvider<SidebarNode> {
     }
 }
 
-function sidebarItemsForPackage(pyPackage?: PythonPackage): TreeItem[] {
-    let items: TreeItem[] = [];
-
-    if (pyPackage == null) {
-        return [];
-    }
-
-    if (pyPackage.isInstalled) {
-        items.push(new VersionTreeItem(pyPackage.version ?? ''));
-    } else {
-        let pylsItem = new TreeItem('Not Installed');
-        pylsItem.descriptiveText = '';
-        pylsItem.image = 'xmark.octagon';
-        items.push(pylsItem);
-    }
-
-    return items;
-}
-
-function sidebarItemsForPylsPackage(pylsPackage?: PythonPackage, pythonVersion?: string): TreeItem[] {
-    let items: TreeItem[] = [];
-
-    let pylsItem = new TreeItem('Python Language Server');
-    pylsItem.descriptiveText = '';
-    pylsItem.image = 'python';
-    items.push(pylsItem);
-
-    items = items.concat(sidebarItemsForPackage(pylsPackage));
-
-    let venvPathItem = new TreeItem('Virtualenv Path');
-    venvPathItem.descriptiveText = Settings.shared.humanReadableVirtualenvPath;
-    venvPathItem.image = '__builtin.path';
-    items.push(venvPathItem);
-
-    let pylsBinPathItem = new TreeItem('PyLS Binary Path');
-    pylsBinPathItem.descriptiveText = Settings.shared.humanReadableLanguageServerBinPath;
-    pylsBinPathItem.image = '__builtin.path';
-    items.push(pylsBinPathItem);
-
-    let pythonVersionItem = new TreeItem('Python Version');
-    pythonVersionItem.descriptiveText = pythonVersion ?? '?';
-    pythonVersionItem.image = 'tag';
-    items.push(pythonVersionItem);
-
-    return items;
-}
-
 function treeItemForSidebarNode(node: SidebarNode): TreeItem {
-    if (node instanceof PythonPackage) {
+    if (node === 'PythonInstall') {
+        let item = new TreeItem('Python', TreeItemCollapsibleState.Expanded);
+        item.descriptiveText = '';
+        item.image = 'python';
+        return item;
+    } else if (node === 'PyLSPythonPackage') {
+        let item = new TreeItem('Python Language Server', TreeItemCollapsibleState.Expanded);
+        item.descriptiveText = '';
+        item.image = 'python';
+        return item;
+    } else if (node instanceof PythonPackage) {
         let item = new TreeItem(node.name, TreeItemCollapsibleState.Expanded);
         item.image = 'puzzlepiece';
         return item;
-    } else if (node === 'plugins') {
+    } else if (node === 'Plugins') {
         return new TreeItem('Plugins', TreeItemCollapsibleState.Expanded);
     } else if (node instanceof TreeItem) {
         let item = new TreeItem(node.name);
@@ -128,6 +96,46 @@ function treeItemForSidebarNode(node: SidebarNode): TreeItem {
         item.image = 'warn';
         return item;
     }
+}
+
+function childrenTreeItemsForPythonInstall(pythonSetup?: PythonSetup): TreeItem[] {
+    let items: TreeItem[] = [];
+    let pythonVersionItem = new VersionTreeItem(pythonSetup?.pythonVersion);
+    items.push(pythonVersionItem);
+
+    let venvPathItem = new TreeItem('Virtualenv Path');
+    venvPathItem.descriptiveText = Settings.shared.humanReadableVirtualenvPath;
+    venvPathItem.image = '__builtin.path';
+    items.push(venvPathItem);
+    return items;
+}
+
+function childrenTreeItemsForPylsPackage(pythonSetup?: PythonSetup): TreeItem[] {
+    let items: TreeItem[] = [];
+
+    items.push(new VersionTreeItem(pythonSetup?.pylsPackage.version));
+
+    let pylsBinPathItem = new TreeItem('PyLS Binary Path');
+    pylsBinPathItem.descriptiveText = Settings.shared.humanReadableLanguageServerBinPath;
+    pylsBinPathItem.image = '__builtin.path';
+    items.push(pylsBinPathItem);
+
+    return items;
+}
+
+function childrenTreeItemsForPythonPackage(pyPackage: PythonPackage): TreeItem[] {
+    let items: TreeItem[] = [];
+
+    if (pyPackage.isInstalled) {
+        items.push(new VersionTreeItem(pyPackage.version));
+    } else {
+        let pylsItem = new TreeItem('Not Installed');
+        pylsItem.descriptiveText = '';
+        pylsItem.image = 'xmark.octagon';
+        items.push(pylsItem);
+    }
+
+    return items;
 }
 
 export function sidebarRefreshAsLoading() {
