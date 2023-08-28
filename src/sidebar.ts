@@ -127,11 +127,25 @@ function childrenTreeItemsForPythonPackage(pyPackage: PythonPackage): TreeItem[]
     let items: TreeItem[] = [];
 
     if (pyPackage.isInstalled) {
+        const configProp = `${pyPackage.name}Enabled` as keyof Settings;
+        const isEnabled = Settings.shared[configProp];
+        if (isEnabled) {
+            let pylsItem = new TreeItem('Enabled');
+            pylsItem.descriptiveText = '';
+            pylsItem.image = 'checkmark';
+            items.push(pylsItem);
+        } else {
+            let pylsItem = new TreeItem('Disabled');
+            pylsItem.descriptiveText = '';
+            pylsItem.image = 'xmark';
+            items.push(pylsItem);
+        }
+
         items.push(new VersionTreeItem(pyPackage.version));
     } else {
         let pylsItem = new TreeItem('Not Installed');
         pylsItem.descriptiveText = '';
-        pylsItem.image = 'xmark.octagon';
+        pylsItem.image = 'xmark.diamond';
         items.push(pylsItem);
     }
 
