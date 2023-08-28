@@ -2,7 +2,7 @@
 
 import { alertDeprecatedServerIfNeeded } from './deprecation';
 import { pythonPackagesFromJSON } from './pypackage';
-import { LanguageServerConfigurationArgs, Settings } from './settings';
+import { Settings } from './settings';
 import { sidebarRefreshAsLoading, sidebarRefreshContent, sidebarRefreshWithError } from './sidebar';
 
 export let serpens: Serpens | null;
@@ -69,17 +69,12 @@ class Serpens extends Disposable {
         this.detectPylsSetup();
     }
 
-    reloadLanguageServerConfiguration(workspace?: Workspace, configKey?: string, value?: any) {
+    reloadLanguageServerConfiguration(_?: Workspace) {
         if (this.languageClient == null) {
             return;
         }
 
-        let config: LanguageServerConfigurationArgs;
-        if (configKey != null && value != null) {
-            config = Settings.shared.languageServerConfigurationForKey(configKey, value);
-        } else {
-            config = Settings.shared.languageServerConfiguration();
-        }
+        const config = Settings.shared.languageServerConfiguration();
         this.languageClient.sendNotification('workspace/didChangeConfiguration', config);
     }
 

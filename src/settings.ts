@@ -1,5 +1,3 @@
-import { mergeDeep } from './utils';
-
 const EXTENSION_ROOT_IDENTIFIER = 'com.guillaumealgis.serpens';
 
 // https://github.com/python-lsp/python-lsp-server/blob/develop/CONFIGURATION.md
@@ -126,56 +124,6 @@ export class Settings {
                         }
                     }
                 }
-            }
-        };
-    }
-
-    languageServerConfigurationForKey(configKey: string, value: any): LanguageServerConfigurationArgs {
-        configKey = configKey.replace(EXTENSION_ROOT_IDENTIFIER + '.', '');
-
-        // Some Serpens configuration keys are mapped differently in PyLSP.
-        // This function converts the Serpens key to a list of PyLSP keys.
-        function serpensToPylsKey(serpensKey: string): string[] {
-            //  Most Serpens keys will not be in the map, because they already
-            // match their PyLSP counterpart.
-            const conversionMap: { [key: string]: string | string[] } = {
-                'plugins.rope.enabled': ['plugins.rope_autoimport.enabled', 'plugins.rope_completion.enabled']
-            };
-            const mappedKey = conversionMap[serpensKey];
-            if (mappedKey == null) {
-                return [serpensKey];
-            } else if (typeof mappedKey === 'string') {
-                return [mappedKey];
-            }
-            return mappedKey;
-        }
-
-        let configs: AnySettings[] = [];
-
-        const pylsKeys = serpensToPylsKey(configKey);
-        for (const pylsKey of pylsKeys) {
-            let keyConfig: AnySettings = {};
-            const keyLevels = pylsKey.split('.').reverse();
-            for (const [i, keyLevel] of keyLevels.entries()) {
-                if (i === 0) {
-                    keyConfig[keyLevel] = value;
-                } else {
-                    keyConfig = { [keyLevel]: keyConfig };
-                }
-            }
-            configs.push(keyConfig);
-        }
-
-        let config: AnySettings;
-        if (configs.length > 1) {
-            config = mergeDeep(configs[0], ...configs.slice(1));
-        } else {
-            config = configs[0];
-        }
-
-        return {
-            settings: {
-                pylsp: config
             }
         };
     }
