@@ -1,3 +1,17 @@
+export const SUPPORTED_PLUGINS = [
+    'autopep8',
+    'flake8',
+    'mccabe',
+    'pycodestyle',
+    'pydocstyle',
+    'pyflakes',
+    'pylint',
+    'rope',
+    'yapf'
+] as const;
+
+export type PluginName = (typeof SUPPORTED_PLUGINS)[number];
+
 export class PythonSetup {
     constructor(
         public pythonVersion: string,
@@ -51,8 +65,10 @@ export function pythonPackagesFromJSON(jsonString: string): PythonSetup {
         const pyPackage = PythonPackage.deserialize(packageObject);
         if (pyPackage.type === 'main') {
             pylsPackage = pyPackage;
-        } else {
+        } else if (SUPPORTED_PLUGINS.includes(pyPackage.name as PluginName)) {
             pluginsPackages.push(pyPackage);
+        } else {
+            console.warn(`Detected plugin "${pyPackage.name}" in Python setup, which is not yet supported by Serpens`);
         }
     }
 

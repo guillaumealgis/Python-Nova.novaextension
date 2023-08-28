@@ -106,15 +106,9 @@ class Serpens extends Disposable {
     private detectPylsSetup() {
         sidebarRefreshAsLoading();
 
-        if (Settings.shared.virtualenvPath === null) {
-            const error = new Error('Expected a valid virtualenv path to be set');
-            this.displayPylsSetupError(error);
-            return;
-        }
-
         const detectionScriptPath = nova.path.join(nova.extension.path, 'Scripts', 'detect_pyls_config.py');
         const options = {
-            args: [detectionScriptPath, Settings.shared.virtualenvPath]
+            args: [detectionScriptPath]
         };
 
         const pythonBinPath = Settings.shared.pythonBinPath;
