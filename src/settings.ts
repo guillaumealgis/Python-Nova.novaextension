@@ -38,6 +38,14 @@ interface RegisteringOptions {
 export class Settings {
     private static _instance: Settings;
 
+    // FIXME: The onDidChange callback for settings will be called 7 times each
+    // time a setting changes because of a bug in Nova.
+    // https://devforum.nova.app/t/nova-config-ondidchange-callback-invokes-7-times/2020/5
+    // To prevent this we're always waiting a bit (a couple of ms) before running
+    // the callback for a setting again, and storing the keys of the settings in
+    // timeout here.
+    private _onDidChangeTimeoutKeys: Set<string> = new Set();
+
     // https://stackoverflow.com/a/36978360/404321
     static get shared() {
         return this._instance || (this._instance = new this());
@@ -208,6 +216,17 @@ export class Settings {
         this[settingsPropName] = value;
 
         const onDidChangeWrapper = (_: this[K], oldValue: this[K]) => {
+            // Begin fix for Nova bug (see _onDidChangeTimeoutKeys).
+            if (this._onDidChangeTimeoutKeys.has(configKey)) {
+                return;
+            }
+
+            this._onDidChangeTimeoutKeys.add(configKey);
+            setTimeout(() => {
+                this._onDidChangeTimeoutKeys.delete(configKey);
+            }, 10);
+            // End fix
+
             const newValue = this.getSetting(configKey, settingType) as this[K];
             this[settingsPropName] = newValue;
 

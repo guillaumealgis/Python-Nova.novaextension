@@ -69,10 +69,6 @@ class Serpens extends Disposable {
         this.detectPylsSetup();
     }
 
-    // Note: This may be called 7 times when a setting changes because of a bug
-    // in Nova. This doesn't seems to be problematic as of today (we're just
-    // spamming the LSP Server needlessly).
-    // https://devforum.nova.app/t/nova-config-ondidchange-callback-invokes-7-times/2020/5
     reloadLanguageServerConfiguration(workspace?: Workspace, configKey?: string, value?: any) {
         if (this.languageClient == null) {
             return;
