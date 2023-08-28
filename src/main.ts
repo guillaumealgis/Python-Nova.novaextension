@@ -31,7 +31,7 @@ class Serpens extends Disposable {
         });
 
         nova.commands.register('sidebar.reload', this.detectPylsSetup, this);
-        nova.commands.register('restartLanguageClient', this.restartLanguageClient, this);
+        nova.commands.register('restartLanguageClient', this.restartLanguageClientFromCommand, this);
         nova.commands.register('reloadLanguageServerConfiguration', this.reloadLanguageServerConfiguration, this);
     }
 
@@ -44,6 +44,10 @@ class Serpens extends Disposable {
             this.languageClient.stop();
             this.languageClient = null;
         }
+    }
+
+    restartLanguageClientFromCommand(_: Workspace, onDidStart?: () => void) {
+        this.restartLanguageClient(onDidStart);
     }
 
     restartLanguageClient(onDidStart?: () => void) {
