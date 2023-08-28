@@ -31,6 +31,7 @@ export type SettingsTypes = NovaSettingsTypes & {
 interface RegisteringOptions {
     restartsLanguageServer?: boolean;
     reloadsLanguageServerConfig?: boolean;
+    reloadsSidebar?: boolean;
 }
 
 export class Settings {
@@ -138,16 +139,16 @@ export class Settings {
     private registerSettings() {
         this.registerSetting('virtualenvPath', 'path', null, { restartsLanguageServer: true });
 
-        const reloadsConfig = { reloadsLanguageServerConfig: true };
-        this.registerSetting('autopep8Enabled', 'boolean', 'plugins.autopep8.enabled', reloadsConfig);
-        this.registerSetting('flake8Enabled', 'boolean', 'plugins.flake8.enabled', reloadsConfig);
-        this.registerSetting('mccabeEnabled', 'boolean', 'plugins.mccabe.enabled', reloadsConfig);
-        this.registerSetting('pycodestyleEnabled', 'boolean', 'plugins.pycodestyle.enabled', reloadsConfig);
-        this.registerSetting('pydocstyleEnabled', 'boolean', 'plugins.pydocstyle.enabled', reloadsConfig);
-        this.registerSetting('pyflakesEnabled', 'boolean', 'plugins.pyflakes.enabled', reloadsConfig);
-        this.registerSetting('pylintEnabled', 'boolean', 'plugins.pylint.enabled', reloadsConfig);
-        this.registerSetting('ropeEnabled', 'boolean', 'plugins.rope.enabled', reloadsConfig);
-        this.registerSetting('yapfEnabled', 'boolean', 'plugins.yapf.enabled', reloadsConfig);
+        const reloadsConfigAndSidebar = { reloadsLanguageServerConfig: true, reloadsSidebar: true };
+        this.registerSetting('autopep8Enabled', 'boolean', 'plugins.autopep8.enabled', reloadsConfigAndSidebar);
+        this.registerSetting('flake8Enabled', 'boolean', 'plugins.flake8.enabled', reloadsConfigAndSidebar);
+        this.registerSetting('mccabeEnabled', 'boolean', 'plugins.mccabe.enabled', reloadsConfigAndSidebar);
+        this.registerSetting('pycodestyleEnabled', 'boolean', 'plugins.pycodestyle.enabled', reloadsConfigAndSidebar);
+        this.registerSetting('pydocstyleEnabled', 'boolean', 'plugins.pydocstyle.enabled', reloadsConfigAndSidebar);
+        this.registerSetting('pyflakesEnabled', 'boolean', 'plugins.pyflakes.enabled', reloadsConfigAndSidebar);
+        this.registerSetting('pylintEnabled', 'boolean', 'plugins.pylint.enabled', reloadsConfigAndSidebar);
+        this.registerSetting('ropeEnabled', 'boolean', 'plugins.rope.enabled', reloadsConfigAndSidebar);
+        this.registerSetting('yapfEnabled', 'boolean', 'plugins.yapf.enabled', reloadsConfigAndSidebar);
     }
 
     private registerSetting<K extends keyof this>(
@@ -180,8 +181,12 @@ export class Settings {
 
             if (options.restartsLanguageServer) {
                 nova.commands.invoke('restartLanguageClient');
-            } else if (options.reloadsLanguageServerConfig) {
+            }
+            if (options.reloadsLanguageServerConfig) {
                 nova.commands.invoke('reloadLanguageServerConfiguration', configKey, newValue as any);
+            }
+            if (options.reloadsSidebar) {
+                nova.commands.invoke('sidebar.reload');
             }
 
             if (onDidChange) {

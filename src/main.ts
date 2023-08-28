@@ -100,7 +100,9 @@ class Serpens extends Disposable {
     }
 
     private onLanguageServerError(this: Serpens, error?: Error) {
-        console.error('Python Language Server error:', error);
+        if (error !== undefined) {
+            console.error('Python Language Server error:', error);
+        }
     }
 
     private detectPylsSetup() {

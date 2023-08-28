@@ -12,6 +12,15 @@ export const SUPPORTED_PLUGINS = [
 
 export type PluginName = (typeof SUPPORTED_PLUGINS)[number];
 
+export const PLUGINS_INCOMPATIBILITIES: Map<PluginName, PluginName[]> = new Map([
+    ['autopep8', ['yapf']],
+    ['flake8', ['mccabe', 'pycodestyle', 'pyflakes']],
+    ['mccabe', ['flake8']],
+    ['pycodestyle', ['flake8']],
+    ['pyflakes', ['flake8']],
+    ['yapf', ['autopep8']]
+]);
+
 export class PythonSetup {
     constructor(
         public pythonVersion: string,

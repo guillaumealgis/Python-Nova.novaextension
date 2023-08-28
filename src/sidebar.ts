@@ -1,4 +1,4 @@
-import { PythonPackage, PythonSetup } from './pypackage';
+import { PLUGINS_INCOMPATIBILITIES, PluginName, PythonPackage, PythonSetup } from './pypackage';
 import { Settings } from './settings';
 
 const SIDEBAR_SECTION = 'serpens-pyls';
@@ -134,6 +134,14 @@ function childrenTreeItemsForPythonPackage(pyPackage: PythonPackage): TreeItem[]
             pylsItem.descriptiveText = '';
             pylsItem.image = 'checkmark';
             items.push(pylsItem);
+
+            const incompatiblePlugins = incompatiblePluginsList(pyPackage);
+            if (incompatiblePlugins) {
+                let pylsItem = new TreeItem('Incompatible with');
+                pylsItem.descriptiveText = incompatiblePlugins;
+                pylsItem.image = 'warn';
+                items.push(pylsItem);
+            }
         } else {
             let pylsItem = new TreeItem('Disabled');
             pylsItem.descriptiveText = '';
@@ -150,6 +158,24 @@ function childrenTreeItemsForPythonPackage(pyPackage: PythonPackage): TreeItem[]
     }
 
     return items;
+}
+
+function incompatiblePluginsList(pyPackage: PythonPackage): string | null {
+    const incompatiblePlugins = PLUGINS_INCOMPATIBILITIES.get(pyPackage.name as PluginName);
+    if (incompatiblePlugins == null) {
+        return null;
+    }
+
+    let enabledIncompatiblePlugins = [];
+    for (const name of incompatiblePlugins) {
+        const configProp = `${name}Enabled` as keyof Settings;
+        const isEnabled = Settings.shared[configProp];
+        if (isEnabled) {
+            enabledIncompatiblePlugins.push(name);
+        }
+    }
+
+    return enabledIncompatiblePlugins.join(', ');
 }
 
 export function sidebarRefreshAsLoading() {
