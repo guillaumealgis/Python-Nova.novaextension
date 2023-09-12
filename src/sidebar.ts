@@ -132,7 +132,7 @@ function childrenTreeItemsForPythonPackage(pyPackage: PythonPackage): TreeItem[]
         if (isEnabled) {
             let pylsItem = new TreeItem('Enabled');
             pylsItem.descriptiveText = '';
-            pylsItem.image = 'checkmark';
+            pylsItem.image = 'checkmark.circle.fill';
             items.push(pylsItem);
 
             const incompatiblePlugins = incompatiblePluginsList(pyPackage);
@@ -145,7 +145,7 @@ function childrenTreeItemsForPythonPackage(pyPackage: PythonPackage): TreeItem[]
         } else {
             let pylsItem = new TreeItem('Disabled');
             pylsItem.descriptiveText = '';
-            pylsItem.image = 'xmark';
+            pylsItem.image = 'circle.dotted';
             items.push(pylsItem);
         }
 

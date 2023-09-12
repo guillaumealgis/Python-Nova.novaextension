@@ -28,6 +28,7 @@ class Serpens extends Disposable {
 
         this.restartLanguageClient(() => {
             console.log('Python Language Server started.');
+            console.log('See Serpens sidebar for a list of available and enabled plugins.');
         });
 
         nova.commands.register('sidebar.reload', this.detectPylsSetup, this);
