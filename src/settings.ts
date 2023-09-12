@@ -28,10 +28,13 @@ export type SettingsTypes = NovaSettingsTypes & {
     path: string;
 };
 
-interface RegisteringOptions {
+interface RegisteringOptions<T extends keyof SettingsTypes> {
     restartsLanguageServer?: boolean;
     reloadsLanguageServerConfig?: boolean;
     reloadsSidebar?: boolean;
+    workspaceValueConverter?: (value: SettingsTypes[T] | null) => SettingsTypes[T] | null;
+    globalValueConverter?: (value: SettingsTypes[T] | null) => SettingsTypes[T] | null;
+    onDidChange?: (newValue: SettingsTypes[T] | null, oldValue: SettingsTypes[T]) => void;
 }
 
 export class Settings {
@@ -71,11 +74,11 @@ export class Settings {
     }
 
     get pythonBinPath(): string | null {
-        return this.getBinPathInVirtualenv('python');
+        return this.getBinPathInCurrentVirtualenv('python');
     }
 
     get languageServerBinPath(): string | null {
-        return this.getBinPathInVirtualenv('pylsp');
+        return this.getBinPathInCurrentVirtualenv('pylsp');
     }
 
     get humanReadableLanguageServerBinPath(): string {
@@ -137,7 +140,15 @@ export class Settings {
     }
 
     private registerSettings() {
-        this.registerSetting('virtualenvPath', 'path', null, { restartsLanguageServer: true });
+        this.registerSetting('virtualenvPath', 'path', null, {
+            restartsLanguageServer: true,
+            workspaceValueConverter: (value: string | null) => {
+                if (value != null || nova.workspace.path == null) {
+                    return value;
+                }
+                return this.searchPythonVirtualEnvInDir(nova.workspace.path);
+            }
+        });
 
         const reloadsConfigAndSidebar = { reloadsLanguageServerConfig: true, reloadsSidebar: true };
         this.registerSetting('autopep8Enabled', 'boolean', 'plugins.autopep8.enabled', reloadsConfigAndSidebar);
@@ -151,20 +162,24 @@ export class Settings {
         this.registerSetting('yapfEnabled', 'boolean', 'plugins.yapf.enabled', reloadsConfigAndSidebar);
     }
 
-    private registerSetting<K extends keyof this>(
+    private registerSetting<K extends keyof Settings, T extends keyof SettingsTypes>(
         settingsPropName: K,
-        settingType: keyof SettingsTypes,
+        settingType: T,
         configKeyOrNull: string | null = null,
-        options: RegisteringOptions,
-        onDidChange?: (newValue: this[K], oldValue: this[K]) => void
+        options: RegisteringOptions<T>
     ) {
         let configKey = configKeyOrNull ?? settingsPropName.toString();
         configKey = EXTENSION_ROOT_IDENTIFIER + '.' + configKey;
 
-        const value = this.getSetting(configKey, settingType) as this[K];
+        const value = this.getSetting(
+            configKey,
+            settingType,
+            options.workspaceValueConverter,
+            options.globalValueConverter
+        ) as this[K];
         this[settingsPropName] = value;
 
-        const onDidChangeWrapper = (_: this[K], oldValue: this[K]) => {
+        const onDidChangeWrapper = (_: SettingsTypes[T], oldValue: SettingsTypes[T]) => {
             // Begin fix for Nova bug (see _onDidChangeTimeoutKeys).
             if (this._onDidChangeTimeoutKeys.has(configKey)) {
                 return;
@@ -176,8 +191,8 @@ export class Settings {
             }, 10);
             // End fix
 
-            const newValue = this.getSetting(configKey, settingType) as this[K];
-            this[settingsPropName] = newValue;
+            const newValue = this.getSetting(configKey, settingType);
+            this[settingsPropName] = newValue as this[K];
 
             if (options.restartsLanguageServer) {
                 nova.commands.invoke('restartLanguageClient');
@@ -189,8 +204,8 @@ export class Settings {
                 nova.commands.invoke('sidebar.reload');
             }
 
-            if (onDidChange) {
-                onDidChange(newValue, oldValue);
+            if (options.onDidChange) {
+                options.onDidChange(newValue, oldValue);
             }
         };
 
@@ -198,7 +213,12 @@ export class Settings {
         nova.workspace.config.onDidChange(configKey, onDidChangeWrapper);
     }
 
-    private getSetting<K extends keyof SettingsTypes>(key: string, type: K): SettingsTypes[K] | null {
+    private getSetting<T extends keyof SettingsTypes>(
+        key: string,
+        type: T,
+        workspaceValueConverter?: (value: SettingsTypes[T] | null) => SettingsTypes[T] | null,
+        globalValueConverter?: (value: SettingsTypes[T] | null) => SettingsTypes[T] | null
+    ): SettingsTypes[T] | null {
         let pref: ConfigurationValue | null;
 
         let coercionType: keyof NovaSettingsTypes;
@@ -224,6 +244,10 @@ export class Settings {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             pref = nova.workspace.config.get(key, coercionType);
+
+            if (workspaceValueConverter != null) {
+                pref = workspaceValueConverter(pref);
+            }
         }
 
         // Get the global-level preference.
@@ -231,13 +255,17 @@ export class Settings {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             pref = nova.config.get(key, coercionType);
+
+            if (globalValueConverter != null) {
+                pref = globalValueConverter(pref);
+            }
         }
 
         if (pref != null) {
             if (type === 'path' && typeof pref === 'string') {
                 pref = nova.path.expanduser(pref);
             }
-            return pref as SettingsTypes[K];
+            return pref as SettingsTypes[T];
         }
         return null;
     }
@@ -302,12 +330,16 @@ export class Settings {
         return venvPath;
     }
 
-    private getBinPathInVirtualenv(binName: string): string | null {
+    private getBinPathInCurrentVirtualenv(binName: string): string | null {
         if (this.virtualenvPath == null) {
             return null;
         }
 
-        const binPath = nova.path.join(this.virtualenvPath, 'bin', binName);
+        return this.getBinPathInVirtualenv(this.virtualenvPath, binName);
+    }
+
+    private getBinPathInVirtualenv(virtualenvPath: string, binName: string): string | null {
+        const binPath = nova.path.join(virtualenvPath, 'bin', binName);
         if (!nova.fs.access(binPath, nova.fs.X_OK)) {
             return null;
         }
@@ -326,26 +358,29 @@ export class Settings {
         return path;
     }
 
-    //     // Try to find an appropriate bin for the PyLSP server in the user's $PATH.
-    //     private searchUsablePyLSExecutable(): string | null {
-    //         const envPath = nova.environment['PATH'];
-    //         if (envPath === undefined) {
-    //             return null;
-    //         }
-    //
-    //         const possibleBins = ['pylsp', 'pyls'];
-    //         const possiblePaths = envPath.split(':');
-    //         for (const bin of possibleBins) {
-    //             for (const path of possiblePaths) {
-    //                 const binPath = path + '/' + bin;
-    //                 if (nova.fs.access(binPath, nova.fs.F_OK | nova.fs.X_OK)) {
-    //                     return binPath;
-    //                 }
-    //             }
-    //         }
-    //
-    //         return null;
-    //     }
+    private searchPythonVirtualEnvInDir(dirpath: string): string | null {
+        const virtualEnvNames = ['venv', 'env', 'virtualenv'];
+        for (const file of nova.fs.listdir(dirpath)) {
+            if (!virtualEnvNames.includes(file)) {
+                continue;
+            }
+
+            const virtualenvPath = dirpath + '/' + file;
+            const virtualenvStats = nova.fs.stat(virtualenvPath);
+            if (!virtualenvStats?.isDirectory()) {
+                continue;
+            }
+
+            if (!this.getBinPathInVirtualenv(virtualenvPath, 'python')) {
+                continue;
+            }
+
+            if (this.getBinPathInVirtualenv(virtualenvPath, 'pylsp')) {
+                return virtualenvPath;
+            }
+        }
+        return null;
+    }
 }
 
 function toBoolean(value: string | boolean): boolean {
