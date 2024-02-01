@@ -1,3 +1,10 @@
+# ⚠️ Development paused
+
+**I sadly don't have the time and energy to maintain this extension right now.**
+**I don't know if I'll ever come back to it.**
+
+-----------------------
+
 # Serpens for Nova
 
 <p align="center">
